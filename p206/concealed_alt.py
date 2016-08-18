@@ -36,7 +36,6 @@ possible_abc = find_possible_a_b (possible_c)
 
 
 base = 1000000000
-
 first_digit = 1
 test = base
 while test * test < (first_digit+1) * (10 ** (num_digits-1)):
