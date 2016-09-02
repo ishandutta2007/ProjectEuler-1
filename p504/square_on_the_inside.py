@@ -5,7 +5,7 @@
 
 # Given 2 points, return the parameters of the line connecting them
 # Will return (m1, m2, b) where y = (m1/m2) x + b
-import sys, os, inspect
+import sys, os, inspect, time
 from math import fabs
 
 cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0]))
@@ -66,11 +66,6 @@ def points_given_lines (line_list):
         else:
             within_x2 = int(x2)
         lp_count += (within_x1 - within_x2 + 1)
-
-
-
-
-
         
     return lp_count
 
@@ -112,10 +107,23 @@ def quad_lattice_points_simple (lp_list):
     return total_points
 
 
-lp_list = []
-pt1, pt2, pt3, pt4 = (0,4), (3,0), (0, -2), (-1,0)
-lp_list.append(pt1)
-lp_list.append(pt2)
-lp_list.append(pt3)
-lp_list.append(pt4)
-print quad_lattice_points_simple (lp_list)
+
+max_dim = 20
+square_count = 0
+start_time = time.time()
+
+for x1 in range(1,max_dim+1):
+    pt1 = (0, x1)
+    for x2 in range(1,max_dim+1):
+        pt2 = (x2, 0)
+        for x3 in range(1,max_dim+1):
+            pt3 = (0, -1*x3)
+            for x4 in range(1,max_dim+1):
+                pt4 = (-1*x4, 0)
+                lp_list = [pt1,pt2,pt3,pt4]
+                lp_total = quad_lattice_points_simple (lp_list)                
+                test = int(lp_total ** 0.5)
+                if test * test == lp_total:
+                    square_count += 1
+
+print square_count, int(time.time()-start_time)
