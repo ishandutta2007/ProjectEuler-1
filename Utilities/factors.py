@@ -25,7 +25,8 @@ def sum_all_proper_divisors (n):
     return divisor_sum
 
 # check if number is prime
-def is_prime (n):
+def is_prime (n, prime_list = []):
+
     if n < 2:
         return 0
     if n == 2:
@@ -33,11 +34,23 @@ def is_prime (n):
     if n % 2 == 0:
         return 0
 
-    for div in range(3, int(n**0.5)+1, 2):
-        if n % div == 0:
+    if len(prime_list) == 0:
+
+        for div in xrange(3, int(n**0.5)+1, 2):
+            if n % div == 0:
+                return 0
+        return 1
+
+    for prime in prime_list:
+        if n % prime == 0:
+            return 0
+        if prime > n ** 0.5:
+            return 1
+    for i in xrange (max(prime_list) + 2, int(n ** 0.5), 2):
+        if n % i == 0:
             return 0
     return 1
-
+ 
 # generates list of primes up to n
 def gen_prime_list (n, prime_list):
     prime_list.append (2)
