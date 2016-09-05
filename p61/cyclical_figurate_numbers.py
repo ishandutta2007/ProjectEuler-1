@@ -20,8 +20,9 @@ def octo (n):
 
 def figurate_dict_list (min_num, max_num, func):
 
-    # triangular
+    
     dict1 = {}
+    dict1[-1] = func.__name__    
     n = 1
     while func(n) < min_num:
         n += 1
@@ -33,7 +34,7 @@ def figurate_dict_list (min_num, max_num, func):
         n += 1
     return dict1
 
-def find_figurate_list (dict_list, num_list = []):
+def find_figurate_list (dict_list, num_list = [], name_list = []):
 
     if len (dict_list) == 1:
         last_two_digits = num_list[-1] % 100
@@ -44,7 +45,7 @@ def find_figurate_list (dict_list, num_list = []):
                 final_last_digits = final_num % 100
                 if final_last_digits == (num_list[0] / 100):
                     num_list.append (final_num)
-                    print sum(num_list), num_list
+                    print sum(num_list), num_list, name_list
                     return 1
             return 0
         else:
@@ -59,16 +60,17 @@ def find_figurate_list (dict_list, num_list = []):
         for nums in dict_list[index-1]:
             
             end_val = dict_list[index-1][nums][0]
-            dict_index = 0    
+                
             for dict_item in new_dict_list:
 
                 if end_val in dict_item:
+                    
                     next_dict_list = new_dict_list                        
                     next_num_list = [100 * nums + end_val]
-                    total_count += find_figurate_list(next_dict_list, next_num_list)
-                    
-                dict_index += 1
-
+                    next_name_list = [dict_list[index-1][-1]]
+                    total_count += find_figurate_list(next_dict_list, next_num_list, next_name_list)
+                    break             
+                
     else:
         last_two_digits = num_list[-1] % 100
         total_count = 0
@@ -82,10 +84,12 @@ def find_figurate_list (dict_list, num_list = []):
                     next_dict_list = new_dict_list[:dict_index]
                 else:
                     next_dict_list = new_dict_list[:dict_index] + new_dict_list[dict_index+1:]
-                    
+                next_name = [dict_item[-1]]
+                
                 for val in dict_item[last_two_digits]:
                     next_num_list = [100 * last_two_digits + val]
-                    total_count += (find_figurate_list(next_dict_list, num_list + next_num_list))
+       
+                    total_count += (find_figurate_list(next_dict_list, num_list + next_num_list, name_list + next_name))
                 
             dict_index += 1
 
@@ -98,6 +102,7 @@ dict_list = []
 for func in func_list:
     dict_list.append(figurate_dict_list (1000, 10000, func))
 
-find_figurate_list (dict_list)
+
+print find_figurate_list (dict_list)
 print time.time() - start_time
 
