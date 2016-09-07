@@ -18,7 +18,7 @@ def compare_hands (hand_1, hand_2):
     if P1_hand.hand_type[1] < P2_hand.hand_type[1]: 
         return 1
     if P1_hand.hand_type[1] == P2_hand.hand_type[1]:
-
+        
         for i in range(num_cards-1, -1, -1):
             if (P1_hand.card_list[i].rank_num > P2_hand.card_list[i].rank_num):
                 return 1                    

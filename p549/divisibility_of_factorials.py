@@ -1,5 +1,5 @@
 # divisibility_of_factorials.py
-import gc
+
 import sys
 home_path = "/home/osboxes/ProjEuler/"
 sys.path.insert (0, home_path + "Utilities/")
@@ -106,5 +106,6 @@ for i in xrange (2,max_num+1):
 
     if (i % 10 ** 7 == 0):
         print i
+
 print total_sum
-gc.collect()
+

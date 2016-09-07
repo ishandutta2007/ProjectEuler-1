@@ -84,6 +84,7 @@ fill_dice_probabilities (pyramid_dice_dict, cumul_pyr_dict, num_pyr_sides, num_p
 fill_dice_probabilities (cube_dice_dict, cumul_cube_dict, num_cube_sides, num_cube_dice)
 
 
+# This sums up the probabilities of Peter rolling i and Colin rolling (i-1) or less, solving the problem
 
 total_winning_prob = 0
 for i in range (num_pyr_dice * 1, num_pyr_dice * num_pyr_sides+1):

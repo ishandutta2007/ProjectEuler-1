@@ -8,7 +8,8 @@ cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( ins
 a = cmd_folder.split(os.path.sep)
 a = a[:-1]                         
 a.append ("Utilities")
-sys.path.insert (0, a)
+print (os.path.sep).join(a)
+sys.path.insert (0, (os.path.sep).join(a))
 
 from factors import gen_prime_list, is_prime
 
