@@ -46,7 +46,13 @@ def is_prime (n, prime_list = []):
             return 0
         if prime > n ** 0.5:
             return 1
-    for i in xrange (max(prime_list) + 2, int(n ** 0.5), 2):
+        
+    if max(prime_list) == 2:
+        test_prime = 3
+    else:
+        test_prime = max(prime_list) + 2
+
+    for i in xrange (test_prime, int(n ** 0.5), 2):
         if n % i == 0:
             return 0
     return 1
