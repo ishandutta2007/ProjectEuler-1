@@ -76,13 +76,14 @@ def gcd (num_list):
 # eliminate same numbers from the list
 
     test_list = list(set(num_list))
+
     if len(test_list) == 1:
         return test_list[0]
 
     
-    if len (num_list) == 2:
-        max_num = max(num_list)
-        min_num = min(num_list)
+    if len (test_list) == 2:
+        max_num = max(test_list)
+        min_num = min(test_list)
         if min_num == 0:
             return 0
         if min_num < 0:
@@ -97,5 +98,5 @@ def gcd (num_list):
         return min_num
 
     else:
-        interim_gcd = gcd(num_list[1:])
-        return gcd ([num_list[0], interim_gcd])
+        interim_gcd = gcd(test_list[1:])
+        return gcd ([test_list[0], interim_gcd])
