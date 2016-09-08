@@ -100,3 +100,17 @@ def gcd (num_list):
     else:
         interim_gcd = gcd(test_list[1:])
         return gcd ([test_list[0], interim_gcd])
+
+
+def gen_totient_list (max_num):
+    tot_list = range(max_num+1)
+    tot_list[1] = 0
+    
+    for i in xrange (2, max_num+1):
+        if tot_list[i] == i:   # prime
+            tot_list[i] = i-1
+            for j in xrange (2*i, max_num+1, i):
+                tot_list[j] *= (1 - 1.0/i)
+    return tot_list
+    
+    
