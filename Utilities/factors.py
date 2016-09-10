@@ -112,5 +112,22 @@ def gen_totient_list (max_num):
             for j in xrange (2*i, max_num+1, i):
                 tot_list[j] *= (1 - 1.0/i)
     return tot_list
+
+def sieve_primes (max_num):
+    num_list = [0] * (max_num + 1)
+    prime_list = [2]
+
+    for j in range (2+2, max_num+1, 2):
+        num_list[j] = 1
+
     
+    for i in xrange (3, max_num+1, 2):
+        if num_list[i] == 0:
+            prime_list.append(i)
+            for j in range (2*i, max_num+1, i):
+                num_list[j] = 1
+
+
+    return prime_list
+
     
