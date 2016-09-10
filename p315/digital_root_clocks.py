@@ -86,7 +86,7 @@ def sum_digits (num):
 
 # This calculates the number of lights transitioned between displaying
 # prev_num and curr_num
-# We know that prev_num <= curr_num
+# We know that prev_num >= curr_num
 def transitions_between_numbers (curr_num, prev_num,
                                  transition_dict, num_lights_dict):
 
