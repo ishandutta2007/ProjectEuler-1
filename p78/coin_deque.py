@@ -1,15 +1,16 @@
-# coin_partitions.py
+# coin_deque.py
 # Find the lowest number such that its number of partitions is
 # divisible by 1 MM
 
 import time
+from collections import deque
 
 # takes all the pairs which sum to num
 # adds them appropriately to the dictionary
 def calc_all_pairs (partition_list, num):
     
     for i in xrange (1, num/2 + 1):
-        partition_list[-1].append(1)
+        partition_list.append(1)
     return partition_list
 
 # Calculates all partitions for num, divided by the lowest summand
@@ -18,33 +19,26 @@ def calc_all_pairs (partition_list, num):
 
 def calc_partition_nums (partition_list, num, div_num):
 
-    partition_list.append([1])  # can partition into one pile of num
-
-    partition_list = calc_all_pairs (partition_list, num)
+  
+    new_num_list = []
+    
+    new_num_list = calc_all_pairs (new_num_list, num)
 
     for i in xrange (1, num/3+1):
-        partition_list[-1][i] += (partition_list[-1-i][1] % div_num)
-        del partition_list[-1-i][1]
-
-        
-    for i in xrange (num/2, 0, -1):
-        partition_list[-1][i-1] = (partition_list[-1][i-1] +
-                                    partition_list[-1][i]) % div_num
        
+        new_num_list[i-1] += (partition_list[-i].popleft() % div_num)
+        
+        if len (partition_list[-i]) == 0:
+            del partition_list[-i]
+        
+    for i in xrange (num/2 - 1, 0, -1):
+        new_num_list[i-1] = (new_num_list[i-1] +
+                                    new_num_list[i]) % div_num
+
+    partition_list.append (deque (new_num_list))
             
     return partition_list
     
-
-def free_memory_dict (partition_dict, curr_index):
-
-    curr_key_list = partition_dict.keys()
-
-    new_dict = {k: partition_dict[k]
-                for k in curr_key_list if k[0] >= (2.0 *curr_index/3) and 
-                k[1] >= curr_index - k[0]}
-
-    return new_dict
-
 
 def main():
 
@@ -57,14 +51,14 @@ def main():
     partition_list.append ([1])
     
     
-    while partition_list[i][0] % div_num != 0:
+    while (partition_list[-1][0]+1) % div_num != 0:
         i += 1
         calc_partition_nums (partition_list, i, div_num)
         
-        if i  == 100:
-            print i, partition_list[i][0]
-            
-    print i, partition_list[i][0]
+        if i  % 2500 == 0:
+            print i, partition_list[-1][0]+1
+        
+    print i, (partition_list[-1][0]+1)
 
     print time.time() - start_time
 
