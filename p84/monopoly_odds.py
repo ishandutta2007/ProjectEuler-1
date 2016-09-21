@@ -53,20 +53,40 @@ def init_dice_odds_dict (dice_sides):
     
     return dice_odds_dict
 
+
+def init_prob_doubles_dict (dice_sides):
+
+    min_roll = 2 * 1
+    max_roll = 2 * dice_sides
+    prob_doubles_dict = {}
+    
+    for i in range (min_roll, max_roll, 2):
+        if i in prob_doubles_dict:
+            break
+        prob_doubles_dict[i] = 1.0 / (i / 2)
+
+        if min_roll + max_roll - i <= i:
+            break
+        
+        prob_doubles_dict[min_roll + max_roll - i] = prob_doubles_dict[i]
+    
+    return prob_doubles_dict
+    
+
 def end_square (start_square, roll_num, num_total_squares):
 
     final_num_square = (int(start_square) + roll_num) % num_total_squares
 
-    if final_num_square > 10:
+    if final_num_square >= 10:
         return str(final_num_square)
 
     return ('0' + str(final_num_square))
 
 def is_further_movement (sq_name, inv_sq_dict, start_prob_dict,
-                             movement_dict):
+                             movement_dict, init_prob):
 
     sq_num = inv_sq_dict[sq_name]
-    init_prob = start_prob_dict[sq_num]
+#    init_prob = start_prob_dict[sq_num]
     
     if sq_name in movement_dict: 
         movement_list = movement_dict[sq_name]
@@ -133,9 +153,63 @@ def init_start_prob_dict (num_total_squares, square_dict, movement_dict):
 
     for square in start_prob_dict:
         sq_name = square_dict[square]
+        init_prob = start_prob_dict[square]
         start_prob_dict = is_further_movement (sq_name, inv_sq_dict,
-                                               start_prob_dict, movement_dict)    
+                                               start_prob_dict, movement_dict,
+                                               init_prob)
     return start_prob_dict
+
+
+# This takes the current square probabilities, rolls dice from each square,
+# and calculates the landing probabilities for each square.
+# In time, the current probabilities and these end probabilities should
+# be the same, but it may require multiple iterations
+def calc_end_prob (start_prob_dict, dice_odds_dict, square_dict, movement_dict,
+                   prob_doubles_dict, dice_sides):
+
+    end_prob_dict = {k:0 for k in square_dict}
+    inv_sq_dict = {v:k for k,v in square_dict.items()}
+    jail_prob = start_prob_dict[inv_sq_dict['JAIL']]
+    
+    for square in square_dict:
+
+        
+        for roll_num in dice_odds_dict:
+            landing_square = end_square (square, roll_num,
+                                         len(square_dict))
+            landing_sq_name = square_dict[landing_square]
+            
+            init_prob = (start_prob_dict[square] *
+                                             dice_odds_dict[roll_num])
+
+            # check for odds of 3 doubles in a row
+            if roll_num % 2 == 0:
+                trip_doubles_prob = (prob_doubles_dict[roll_num]
+                                      * ((1- jail_prob) ** 2)
+                                     / (dice_sides ** 2)) 
+            else:
+                trip_doubles_prob = 0
+            
+            end_prob_dict[inv_sq_dict['JAIL']] += (init_prob * trip_doubles_prob)
+
+            init_prob = init_prob * (1 - trip_doubles_prob) # subtract jail prob
+            
+            end_prob_dict[landing_square] += init_prob
+                                             
+            end_prob_dict = is_further_movement (landing_sq_name, inv_sq_dict,
+                                                 end_prob_dict, movement_dict,
+                                                 init_prob)
+    return end_prob_dict
+
+# This calculates the maximum value difference between two dictionaries
+# with the same keys
+def dict_diff (dict1, dict2):
+    from math import fabs
+
+    max_diff = 0
+    for k in dict1:
+        max_diff = max (fabs(dict1[k] - dict2[k]), max_diff)
+    return max_diff
 
 def main():
     filename = "monopoly_squares.txt"
@@ -146,18 +220,30 @@ def main():
     file_suffix = '.txt'
     movement_dict = init_movement_dict (str_list, file_suffix)
     
-    dice_sides = 6
+    dice_sides = 4
     dice_odds_dict = init_dice_odds_dict (dice_sides)
 
     start_prob_dict = init_start_prob_dict (len(square_dict), square_dict,
                                             movement_dict)
 
-    for i in range (len(start_prob_dict)):
+    prob_doubles_dict = init_prob_doubles_dict (dice_sides)
+
+    end_prob_dict =  calc_end_prob (start_prob_dict, dice_odds_dict,
+                                    square_dict, movement_dict,
+                                    prob_doubles_dict, dice_sides)
+    thresh = 0.00001
+    
+    while dict_diff (start_prob_dict, end_prob_dict) > thresh:
+        start_prob_dict = end_prob_dict
+        end_prob_dict =  calc_end_prob (start_prob_dict, dice_odds_dict,
+                                    square_dict, movement_dict,
+                                        prob_doubles_dict, dice_sides)
+        
+    for i in range(40):
         if i < 10:
             i_str = '0' + str(i)
         else:
             i_str = str(i)
-        print i, start_prob_dict[i_str]
-    
+        print i_str, end_prob_dict[i_str]
     
 main()
