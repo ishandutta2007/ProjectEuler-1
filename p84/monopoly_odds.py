@@ -238,12 +238,13 @@ def main():
         end_prob_dict =  calc_end_prob (start_prob_dict, dice_odds_dict,
                                     square_dict, movement_dict,
                                         prob_doubles_dict, dice_sides)
-        
+    end_sum = 0
     for i in range(40):
         if i < 10:
             i_str = '0' + str(i)
         else:
             i_str = str(i)
         print i_str, end_prob_dict[i_str]
-    
+        end_sum += end_prob_dict[i_str]
+    print end_sum
 main()
