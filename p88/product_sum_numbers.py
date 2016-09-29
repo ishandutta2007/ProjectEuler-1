@@ -104,14 +104,43 @@ def potential_N_values (prime_factor_dict, max_num):
                 potential_min_dict[num_terms] = min (i, potential_min_dict[num_terms])
     return potential_min_dict
 
-def generate_all_factor_partitions (all_min_dict, factor_list, master_list, curr_list):
-
+def generate_all_factor_partitions (all_min_dict, N, factor_list, master_list = []):
+    import operator
+    
     # Base case
     if len (factor_list) == 0:
         new_list = []
         for mini_list in master_list:
-            pass
+            if len(mini_list) > 0:
+                new_list.append (reduce(operator.mul, mini_list))
+        k = N - sum (new_list) + len (new_list)
+        if k in all_min_dict:
+            all_min_dict[k] = min(N, all_min_dict[k])
+        else:
+            all_min_dict[k] = N
+        return all_min_dict
 
+    test_list = copy (factor_list)
+    if len (master_list) == 0:
+        if len(factor_list) == 1: # prime number
+            return all_min_dict
+        curr_list = []
+        curr_list.append (test_list[0])
+        del test_list[0]
+        master_list.append (curr_list)
+        master_list.append ([])
+
+    # There are two options for each factor in the list from here on:
+    # Either add to one of the lists in master_list, or make a new one
+
+    for i in xrange(len(master_list)):
+        test_master = copy (master_list)
+        test_master[i].append (test_list[0])
+        if len(test_master[-1]) > 0: # always ensure there's an empty list at the end
+            test_master.append([])
+        all_min_dict = generate_all_factor_partitions (all_min_dict, N, test_list[1:], test_master)
+    return all_min_dict
+            
 
 # Determined all products that can equal N and determines their corresponding k value
 # Doing this for all N will yield the minimum N for all k
@@ -141,7 +170,7 @@ def calc_min_num_factors (test_num, min_N):
 def main():
     start_time = time.time()
     N_list = []
-    max_num = 12000
+    max_num = 1000
 
     prime_list, sieve_list = gen_co_prime_sieve (max_num)
     prime_factor_dict = calc_prime_factorization (sieve_list, max_num)
