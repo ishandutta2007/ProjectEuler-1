@@ -130,4 +130,26 @@ def sieve_primes (max_num):
 
     return prime_list
 
+def gen_co_prime_sieve (max_num):
+    prime_list = []
+    nums = [0] * (max_num+1)
+    for i in range (2, max_num+1):
+        if nums[i] == 0:
+            prime_list.append (i)
+            for j in range (2*i, max_num+1, i):
+                if nums[j] == 0:
+                    nums[j] = 1, [i]
+                else:
+                    nums[j][1].append(i)
+                    
+    return prime_list, nums
+
+def gen_all_products (n, start=2):
     
+
+    for i in xrange (start, int(n**0.5) + 1):
+        if n % i == 0:
+            for factor_list in gen_all_products(n/i, i):
+                factor_list.append(i)
+                yield factor_list
+    yield [n]
