@@ -1,4 +1,5 @@
 # factors.py
+from math import fabs
 
 # Sum of all proper divisors of n
 def sum_all_proper_divisors (n):
@@ -77,8 +78,15 @@ def gcd (num_list):
 
     test_list = list(set(num_list))
 
+    test_list_pos = [x for x in test_list if x >= 0]
+    test_list_neg = [-1 * x for x in test_list if x < 0]
+    test_list = test_list_pos + test_list_neg
+
     if len(test_list) == 1:
-        return test_list[0]
+        if test_list[0] >= 0:
+            return test_list[0]
+        else:
+            return -1 * test_list[0]
 
     
     if len (test_list) == 2:
