@@ -223,7 +223,7 @@ def solve_sudoku (sudoku_item):
         return -1, []
         sys.exit()            
                     
-def gen_sudoku_list (filename, square_len):
+def gen_sudoku_list (filename, puzzle_len):
     sudoku_list = []
     with open (filename, 'r') as f:
         index = 0
@@ -232,21 +232,21 @@ def gen_sudoku_list (filename, square_len):
             if index == 0:
                 sudoku_list = []
             else:
-                test_line = [int(line[i]) for i in range(square_len)]
+                test_line = [int(line[i]) for i in range(puzzle_len)]
                 sudoku_list.append (test_line)
-                if len(sudoku_list) == square_len: # sudoku list complete
+                if len(sudoku_list) == puzzle_len: # sudoku list complete
                     sudoku_item = sudoku_class (sudoku_list)
                     flag, output = solve_sudoku (sudoku_item)
                     solve_count += output
                    
                     
-            index = (index + 1) % (square_len + 1)
+            index = (index + 1) % (puzzle_len + 1)
         return solve_count
 def main():
     start_time = time.time()
     filename = "sudoku.txt"
-    square_len = 9
-    print gen_sudoku_list (filename, square_len)
+    puzzle_len = 9
+    print gen_sudoku_list (filename, puzzle_len)
     print time.time() - start_time
 main()
     
