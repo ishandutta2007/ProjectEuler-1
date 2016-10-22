@@ -207,7 +207,7 @@ def solve_sudoku (sudoku_item):
             
     if sudoku_item.total_filled_elts == sudoku_item.puzzle_len ** 2:
         # sudoku_item.print_list()
-        return 1, int(''.join(map(str, sudoku_item.active_list[0][:3])))
+        return 1, int(''.join(map(str, sudoku_item.active_list[0][:sudoku_item.square_len])))
     else:
         row_num, col_num, possible_set = sudoku_item.slot_fewest_possibles()
 
