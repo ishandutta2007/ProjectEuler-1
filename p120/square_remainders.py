@@ -3,10 +3,13 @@
 
 import time
 
+#-----------------------------------------------------------------------------
 # This can be derived by expanding out exponents
 def remainder_formula (a, n):
     return ((2 * n * a) % (a**2))
 
+# Based on the remainder formula, it is simple to show that one of two
+# parameters for n must optimize it. Both are tried and the max is taken
 def max_remainder (a):
 
     if a % 2 == 0:
@@ -15,7 +18,7 @@ def max_remainder (a):
 
     return (max(remainder_formula (a, (a-1)/2),
                 remainder_formula (a, a-1), 2))
-
+#----------------------------------------------------------------------------
 def main ():
     start_time = time.time()
     min_range, max_range = 3, 1000
