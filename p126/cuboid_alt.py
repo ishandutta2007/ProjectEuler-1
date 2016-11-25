@@ -80,7 +80,7 @@ class face:
                         if self.vertex_list[index1][j] ==
                         self.vertex_list[index2][j]])
         return test_len
-        
+#----------------------------------------------------------------------        
 # Unit cube in a region of Cartesian coordinate space
 # In this case, we will define a cube by two of its faces
 # From there, the program will deduce the other four faces
@@ -174,7 +174,7 @@ class unit_cube:
                 self.face_list.append (face (vertex_list_low[i],
                                              vertex_list_high[0]))  
         self.face_list += [self.face_low, self.face_high]
-
+#------------------------------------------------------------------------------
 # Collection of unit cubes, which tracks all uncovered cube faces
 class cuboid:
     def __init__ (self):
@@ -198,7 +198,7 @@ class cuboid:
             else:
                 self.unmatched_face_set.add (cube_face)
                 self.face_cube_dict[cube_face] = cube1
-
+#------------------------------------------------------------------------------
 # Will take as inputs an uncovered face and its corresponding unit cube
 # It will return the unit cube that will cover the face
 def face_covering_cube (lone_face, face_cube):
@@ -234,6 +234,7 @@ def face_covering_cube (lone_face, face_cube):
     opp_cube_vertex = ptwise_addition(opp_face_vertex, opp_diff_vector)
 
     return unit_cube (sample_vertex, opp_cube_vertex)
+#------------------------------------------------------------------------------
 
 # Returns a cuboid with the specified length, width and height
 # One of its corners will be at coordinate (0,0,0), and the opposite corner
@@ -248,7 +249,7 @@ def gen_initial_cuboid (length, width, height):
                                        ptwise_addition((x,y,z),(1,1,1)))
                 test_cuboid.add_cube (test_cube)
     return test_cuboid
-
+#-----------------------------------------------------------------------------
 # Adds minimum cubes to cuboid such that all initially uncovered faces
 # are covered. Returns the cuboid 
 def cover_cuboid (cuboid_test):
@@ -267,21 +268,102 @@ def cover_cuboid (cuboid_test):
         face_set = face_set.intersection (cuboid_test.unmatched_face_set)
       
     return cuboid_test, cube_count
-    
-def main():    
-    start_time = time.time()            
-    freq_dict = {}
+#--------------------------------------------------------------------------
+
+# Below functions are utility type of functions run in the main module
+def surface_area (length, width, height):
+    return (2 * ((length*width) + (length*height) + (width*height)))
+
+# Calculate the maximum cuboid dimension based on the max_cube_count
+# inputted. This can be solved via surface area equation
+def max_dimension (max_cube_count):
+    return (max_cube_count - 2) / 4
+
+# This is the maximum initial dimension, assuming that dimension is
+# non_decreasing
+def max_init_dimension (max_cube_count):
+    return int (((max_cube_count/6.0) ** 0.5))
+
+def max_mid_dimension (x_val, max_cube_count):
+    return int((-1 * x_val + (16*(x_val**2) + 8 * max_cube_count) ** 0.5) / 4)
+
+# Given a cuboid of dimensions inputted, this calculates the number of
+# cube additions needed to cover the cuboid and adds it to the dictionary
+# It then does the same for the resulting cuboid (next layer) until the
+# number exceeds max_cube_count
+def layer_cube_count (length, width, height, freq_dict, max_cube_count,
+                      target_freq, target_list):
     cube_count = 0
-    max_cube_count = 200
-    cuboid1 = gen_initial_cuboid (3,2,1)
+    cuboid1 = gen_initial_cuboid (length, width, height)
+    cuboid1, cube_count = cover_cuboid (cuboid1)
+    diff_list = [0]
+    if cube_count < max_cube_count:
+
+        freq_dict, target_list = track_cube_count (cube_count, freq_dict,
+                                                       target_freq, target_list)
+        prev_cube_count = cube_count
+        cuboid1, cube_count = cover_cuboid (cuboid1)
+        diff_list.append (cube_count - prev_cube_count)
+        
+    new_diff = diff_list[-1]
     while cube_count < max_cube_count:
 
-        cuboid1, cube_count = cover_cuboid (cuboid1)
-        if cube_count in freq_dict:
-            freq_dict[cube_count] += 1
-        else:
-            freq_dict[cube_count] = 1
-        print cube_count
+        freq_dict, target_list = track_cube_count (cube_count, freq_dict,
+                                                   target_freq, target_list)
+        new_diff += 8
+        cube_count += new_diff
+    return freq_dict, target_list
+
+def layer_alt_count (length, width, height, freq_dict, max_cube_count,
+                      target_freq, target_list):
+    cube_count = surface_area (length, width, height)
+    if cube_count < max_cube_count:
+        freq_dict, target_list = track_cube_count (cube_count, freq_dict,
+                                               target_freq, target_list)
+    else:
+        return freq_dict, target_list
+
+    next_diff = 4 * (length + width + height)
+    cube_count += next_diff
+
+    while cube_count < max_cube_count:
+        freq_dict, target_list = track_cube_count (cube_count, freq_dict,
+                                               target_freq, target_list)
+        next_diff += 8
+        cube_count += next_diff
+
+    return freq_dict, target_list
+
+def track_cube_count (cube_count, freq_dict, target_freq, target_list):
+
+    if cube_count in freq_dict:
+        freq_dict[cube_count] += 1
+        if cube_count in set(target_list):
+            target_list.remove(cube_count)
+        if freq_dict[cube_count] == target_freq:
+            target_list.append (cube_count)
+            
+    else:
+        freq_dict[cube_count] = 1
+            
+    return freq_dict, target_list
+
+def main():    
+    start_time = time.time()            
+    freq_dict, target_list = {}, []
+    max_cube_count = 20000
+    target_freq = 1000
+
+    for x in range(1, max_init_dimension (max_cube_count)):
+        for y in range(x, max_mid_dimension (x, max_cube_count)):
+            for z in range (y, max_dimension (max_cube_count)):
+                if surface_area (x,y,z) > max_cube_count:
+                    break
+                freq_dict, target_list = layer_alt_count (x, y, z, freq_dict,
+                                                           max_cube_count,
+                                                           target_freq,
+                                                           target_list)  
+    print min(target_list)
 
     print time.time() - start_time
 
