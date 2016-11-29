@@ -1,4 +1,4 @@
-# abc_hits.py
+# abc_fast.py
 # Find all solutions (a,b,c) for c < 120000
 # a + b = c, all rel prime, and rad(abc) < c
 
@@ -31,22 +31,22 @@ def calc_radical_ratios (num_list, prime_list):
         test_prime_list = []
         if i % 2 == 0:
             j = 1 # both summands must be odd so 2 cannot be one of the primes
-            while len(test_prime_list) < 1:
+            while len(test_prime_list) < 2:
                 if prime_list[j] not in factor_list:
                     test_prime_list.append(prime_list[j])
                 j += 1
                                         
                 
-            if i / radical >= test_prime_list[0]:
+            if i / radical >= reduce (operator.mul, test_prime_list):
                 c_possible_list.append(i)
         
         else:
             j = 0  # 2 is a valid prime to check
-            while len(test_prime_list) < 1:
+            while len(test_prime_list) < 2:
                 if prime_list[j] not in factor_list:
                     test_prime_list.append(prime_list[j])
                 j += 1
-            if i / radical >= test_prime_list[0]:
+            if i / radical >= reduce(operator.mul, test_prime_list):
                 c_possible_list.append(i)
     return c_possible_list
 #-----------------------------------------------------------------------------
@@ -120,7 +120,7 @@ def check_possible_c (c_num, c_factors, prime_list, num_list,
 def calc_possible_prime_sets (candidate_prime_list, rad_ratio,
                               prime_count, curr_list = [], last_index = 0):
 
-    max_product = rad_ratio / 1
+    max_product = rad_ratio / candidate_prime_list[0]
     
     # Base case
     if len(curr_list) == prime_count:
@@ -210,19 +210,22 @@ def check_a_b (prime_tuple, exp_list, c_num, num_list, rad_ratio):
     for exp_poss in exp_list:
         b = reduce (operator.mul, [prime_tuple[i] ** exp_poss[i] for
                                    i in range(len(prime_tuple))])
-        
         radical_b = reduce (operator.mul, prime_tuple)
 
         a = c_num - b
+        if a == 1:
+            continue
         if num_list[a] == 0: # prime
             radical_a = a
         else:
             radical_a = reduce (operator.mul, num_list[a][1])
         if radical_a * radical_b < rad_ratio:
-           
             c_count += 1
     return c_count
 #----------------------------------------------------------------------------------
+
+def radical (num, factor_list):
+    return reduce (operator.mul, factor_list)
 
 def main():
     start_time = time.time()
@@ -234,18 +237,24 @@ def main():
                                               max_num)
     c_possible_list = calc_radical_ratios (num_list, prime_list)
     c_count = 0
-    f1 = open('abc_results.txt', 'w')
+
+    for c_num in range(2, max_num):
+        # test b = c_num - 1
+        b = c_num - 1
+        if b in prime_set or c_num in prime_set:
+            continue
+        else:
+            b_factor = num_list[b][1]
+            
+        c_factor = num_list[c_num][1]
+        if radical (b, b_factor) * radical(c_num, c_factor) < c_num:
+            c_count += c_num
+    
     for c_num in c_possible_list:
         c_factor = num_list[c_num][1]
-        c_count_old = c_count
         c_count +=  (c_num * check_possible_c (c_num, c_factor, prime_list,
                                                num_list, pair_prime_dict,
                                                max_num))
-        i = 0
-        while (c_count - c_num*i) != c_count_old:
-            f1.write("%d\n" % (c_num))
-            i += 1
-    f1.close()
     print c_count
     print time.time() - start_time
     
