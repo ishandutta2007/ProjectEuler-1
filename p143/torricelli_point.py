@@ -470,7 +470,9 @@ def main():
                                square_root_dict)
             solution_list += [(2*n,n)]
             
-        while solution_list[0][0] < 1.25*max_sum:
+        while min([solution_list[i][1]
+                   for i in range(len(solution_list))]) < max_sum/3:
+            
             # Feed solution_list into calculator check for potential triangles
             for xy_pair in solution_list:
                 
@@ -482,13 +484,9 @@ def main():
                     if sum(new_tri) not in sum_pqr_set:
                         sum_pqr_set.add(sum(new_tri))
 
-                    if new_tri not in torr_triangle_set:
-                        torr_triangle_set.add(new_tri)
-                                                                 
             solution_list = next_equivalence_class (solution_list, D,
                                                     N, init_solution)
 
-    torr_triangle_list = list(torr_triangle_set)
     print sum(sum_pqr_set), max(sum_pqr_set)
             
     print time.time() - start_time
